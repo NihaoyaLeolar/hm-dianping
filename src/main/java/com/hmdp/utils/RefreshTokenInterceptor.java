@@ -26,8 +26,10 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
         // 1. 获取请求头中的token（前端收到token会放到请求头中）
         String token = request.getHeader("authorization");
         if (StrUtil.isBlank(token)) {  // 采用工具类判空，可能是null也可能无值
-            response.setStatus(401);
-            return false;
+            // 这里其实在之前修改拦截器时就要这么写，现在这次测试才发现问题，怪不得更新商户需要token
+            // 之前那么写，对于所有的请求都会需要token了
+            // 这个拦截器只是做token的ttl更新，对于没有登录验证的，都是直接放行，不做任何拦截的
+            return true;
         }
         // 2. 基于token获取到redis中的用户
         String key = RedisConstants.LOGIN_USER_KEY + token;
