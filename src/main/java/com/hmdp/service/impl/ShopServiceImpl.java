@@ -44,11 +44,18 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
             return Result.ok(shop);
         }
 
+        //避免缓存穿透，如果不是blank，命中的可能是我们存入过的空值
+        if (shopJson != null) {
+            return Result.fail("店铺不存在。触发过缓存穿透，缓存中为空");
+        }
+
         // 4. 不存在，根据id查询数据库
         Shop shop = getById(id);
 
         // 5. 还不存在，返回错误
         if (shop == null) {
+            // 避免缓存穿透，当缓存和数据库都不存在时，写入空值，ttl短一点只给2分钟
+            stringRedisTemplate.opsForValue().set(key, "", RedisConstants.CACHE_NULL_TTL, TimeUnit.MINUTES);
             return Result.fail("店铺不存在");
         }
 
