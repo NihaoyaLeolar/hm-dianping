@@ -45,7 +45,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
         // 利用互斥锁解决缓存击穿问题(依旧包括解决了缓存穿透)
         // Shop shop = queryWithMutex(id);
 
-        /// 利用逻辑过期来解决缓存你击穿问题（通过预热，保证热点key都在redis中，不存在缓存穿透问题）
+        /// 利用逻辑过期来解决缓存击穿问题（通过预热，保证热点key都在redis中，不存在缓存穿透问题）
         Shop shop = queryWithLogicalExpire(id);
 
         if (shop == null) {
